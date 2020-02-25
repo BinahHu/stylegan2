@@ -163,7 +163,7 @@ def training_loop(
     G.print_layers(); D.print_layers()
     sched = training_schedule(cur_nimg=total_kimg*1000, training_set=training_set, **sched_args)
     #grid_latents = np.random.randn(np.prod(grid_size), *G.input_shape[1:])
-    grid_latents, enc, layers = E.encode(np.zeros((480,3,256,256)), dtype='float32')
+    grid_latents, enc, layers = E.encode(np.zeros((480,3,256,256), dtype='float32'))
     print("ok1")
     grid_fakes = Gs.run(grid_latents, grid_labels, is_validation=True, minibatch_size=sched.minibatch_gpu)
     print("ok2")
