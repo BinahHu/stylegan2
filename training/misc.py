@@ -93,11 +93,14 @@ def parse_config_for_previous_run(run_dir):
 # periodically during training.
 
 def setup_snapshot_image_grid(training_set,
-    size    = '1080p',      # '1080p' = to be viewed on 1080p display, '4k' = to be viewed on 4k display.
+    size    = 'vgg',      # '1080p' = to be viewed on 1080p display, '4k' = to be viewed on 4k display.
     layout  = 'random'):    # 'random' = grid contents are selected randomly, 'row_per_class' = each row corresponds to one class label.
 
     # Select size.
     gw = 1; gh = 1
+    if size == 'vgg':
+        gw = 8
+        gh = 8
     if size == '1080p':
         gw = np.clip(1920 // training_set.shape[2], 3, 32)
         gh = np.clip(1080 // training_set.shape[1], 2, 32)
