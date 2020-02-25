@@ -73,9 +73,11 @@ class Encoder(object):
         enc = layers[ENCODER_LAYERS[-1]]
 
         print(enc.shape)
-        exit()
+
 
         latent_code = tf.reduce_mean(enc, axis=[1,2])
+        print(latent_code.shape)
+        exit()
 
         return latent_code, enc, layers
 
