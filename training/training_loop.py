@@ -165,7 +165,7 @@ def training_loop(
     #grid_latents = np.random.randn(np.prod(grid_size), *G.input_shape[1:])
     grid_latents, enc, layers = E.encode(np.zeros((480,256,256,3), dtype='float32'))
     print("ok1")
-    grid_fakes = Gs.run(grid_latents.eval(), grid_labels, is_validation=True, minibatch_size=sched.minibatch_gpu)
+    grid_fakes = Gs.run(grid_latents, grid_labels, is_validation=True, minibatch_size=sched.minibatch_gpu)
     print("ok2")
     exit()
     misc.save_image_grid(grid_fakes, dnnlib.make_run_dir_path('fakes_init.png'), drange=drange_net, grid_size=grid_size)
