@@ -75,7 +75,7 @@ class Encoder(object):
 
         latent_code = tf.reduce_mean(enc, axis=[1,2])
 
-        return latent_code, enc, layers
+        return latent_code.eval(), enc, layers
 
     def preprocess(self, image, mode='BGR'):
         if mode == 'BGR':
