@@ -35,7 +35,7 @@ _valid_configs = [
 
 def run(content_dataset, style_dataset, dataset, data_dir, result_dir, config_id, num_gpus, total_kimg, gamma, mirror_augment, metrics):
     train     = EasyDict(run_func_name='training.training_loop.training_loop') # Options for training loop.
-    E         = EasyDict(func_name='training.encoder.VGG_Encoder')             # Options for encoder network
+    E_path    = "/home/v-zhiyhu/models/vgg19_normalised.npz"                   # Path to save encoder network
     G         = EasyDict(func_name='training.networks_stylegan2.G_main')       # Options for generator network.
     D         = EasyDict(func_name='training.networks_stylegan2.D_stylegan2')  # Options for discriminator network.
     G_opt     = EasyDict(beta1=0.0, beta2=0.99, epsilon=1e-8)                  # Options for generator optimizer.
@@ -113,7 +113,7 @@ def run(content_dataset, style_dataset, dataset, data_dir, result_dir, config_id
     sc.submit_target = dnnlib.SubmitTarget.LOCAL
     sc.local.do_not_copy_source_files = True
     kwargs = EasyDict(train)
-    kwargs.update(E_args=E, G_args=G, D_args=D, G_opt_args=G_opt, D_opt_args=D_opt, G_loss_args=G_loss, D_loss_args=D_loss)
+    kwargs.update(E_path = E_path, G_args=G, D_args=D, G_opt_args=G_opt, D_opt_args=D_opt, G_loss_args=G_loss, D_loss_args=D_loss)
     kwargs.update(dataset_args=dataset_args, sched_args=sched, grid_args=grid, metric_arg_list=metrics, tf_config=tf_config)
     kwargs.submit_config = copy.deepcopy(sc)
     kwargs.submit_config.run_dir_root = result_dir

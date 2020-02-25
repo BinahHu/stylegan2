@@ -15,6 +15,7 @@ from dnnlib.tflib.autosummary import autosummary
 from training import dataset
 from training import misc
 from metrics import metric_base
+from training.encoder import Encoder
 
 #----------------------------------------------------------------------------
 # Just-in-time processing of training images before feeding them to the networks.
@@ -103,7 +104,7 @@ def training_schedule(
 # Main training script.
 
 def training_loop(
-    E_args                  = {},       # Options for Encoder network
+    E_path                  = "",       # Path to save VGG models
     G_args                  = {},       # Options for generator network.
     D_args                  = {},       # Options for discriminator network.
     G_opt_args              = {},       # Options for generator optimizer.
@@ -143,29 +144,26 @@ def training_loop(
     grid_size, grid_reals, grid_labels = misc.setup_snapshot_image_grid(training_set, **grid_args)
     misc.save_image_grid(grid_reals, dnnlib.make_run_dir_path('reals.png'), drange=training_set.dynamic_range, grid_size=grid_size)
 
-    E_args.image_shape = [3, 256, 256]
-    E_args.grid_batch = np.prod(grid_size)
-    E_args.latent_size = 512
+    E = Encoder(E_path)
 
     # Construct or load networks.
     with tf.device('/gpu:0'):
         if resume_pkl is None or resume_with_new_nets:
             print('Constructing networks...')
-            E = tflib.Network('E', **E_args)
             G = tflib.Network('G', num_channels=training_set.shape[0], resolution=training_set.shape[1], label_size=training_set.label_size, **G_args)
             D = tflib.Network('D', num_channels=training_set.shape[0], resolution=training_set.shape[1], label_size=training_set.label_size, **D_args)
             Gs = G.clone('Gs')
         if resume_pkl is not None:
             print('Loading networks from "%s"...' % resume_pkl)
-            rE, rG, rD, rGs = misc.load_pkl(resume_pkl)
-            if resume_with_new_nets: E.copy_vars_from(rE); G.copy_vars_from(rG); D.copy_vars_from(rD); Gs.copy_vars_from(rGs)
-            else: E = rE, G = rG; D = rD; Gs = rGs
+            rG, rD, rGs = misc.load_pkl(resume_pkl)
+            if resume_with_new_nets: G.copy_vars_from(rG); D.copy_vars_from(rD); Gs.copy_vars_from(rGs)
+            else: G = rG; D = rD; Gs = rGs
 
     # Print layers and generate initial image snapshot.
-    E.print_layers(); G.print_layers(); D.print_layers()
+    G.print_layers(); D.print_layers()
     sched = training_schedule(cur_nimg=total_kimg*1000, training_set=training_set, **sched_args)
     #grid_latents = np.random.randn(np.prod(grid_size), *G.input_shape[1:])
-    grid_latents = E.run(np.zeros((480,3,256,256)))
+    grid_latents, enc, layers = E.encode(np.zeros((480,3,256,256)))
     print("ok1")
     grid_fakes = Gs.run(grid_latents, grid_labels, is_validation=True, minibatch_size=sched.minibatch_gpu)
     print("ok2")
