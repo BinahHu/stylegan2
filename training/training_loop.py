@@ -103,6 +103,7 @@ def training_schedule(
 # Main training script.
 
 def training_loop(
+    E_args                  = {},       # Options for Encoder network
     G_args                  = {},       # Options for generator network.
     D_args                  = {},       # Options for discriminator network.
     G_opt_args              = {},       # Options for generator optimizer.
@@ -146,6 +147,11 @@ def training_loop(
     with tf.device('/gpu:0'):
         if resume_pkl is None or resume_with_new_nets:
             print('Constructing networks...')
+            # E = tflib.Network('G', num_channels=training_set.shape[0], resolution=training_set.shape[1], label_size=training_set.label_size, **G_args)
+            print("here")
+            print(training_set.shape)
+            print(training_set.label_size)
+            exit()
             G = tflib.Network('G', num_channels=training_set.shape[0], resolution=training_set.shape[1], label_size=training_set.label_size, **G_args)
             D = tflib.Network('D', num_channels=training_set.shape[0], resolution=training_set.shape[1], label_size=training_set.label_size, **D_args)
             Gs = G.clone('Gs')
