@@ -15,6 +15,8 @@ def VGG_Encoder(
     dtype           = 'float32',                # Datatype for output
     **kwargs):
 
+    images_in.set_shape([None, image_shape])
+
     # For test
     latent_code_np = np.random.randn(grid_batch, latent_size)
     return tf.convert_to_tensor(latent_code_np, dtype=dtype)
