@@ -75,6 +75,8 @@ class Encoder(object):
 
         latent_code = tf.reduce_mean(enc, axis=[1,2])
 
+
+        latent_code = latent_code.eval(session=tf.compat.v1.Session())
         #with tf.Session() as sess:
         #    latent_code = latent_code.eval()
 
