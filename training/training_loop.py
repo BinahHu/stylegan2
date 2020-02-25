@@ -144,7 +144,6 @@ def training_loop(
     misc.save_image_grid(grid_reals, dnnlib.make_run_dir_path('reals.png'), drange=training_set.dynamic_range, grid_size=grid_size)
 
     E_args.image_shape = [3, 256, 256]
-    E_args.grid_batch = np.prod(grid_size)
     E_args.latent_size = 512
 
     # Construct or load networks.
@@ -165,7 +164,7 @@ def training_loop(
     E.print_layers(); G.print_layers(); D.print_layers()
     sched = training_schedule(cur_nimg=total_kimg*1000, training_set=training_set, **sched_args)
     #grid_latents = np.random.randn(np.prod(grid_size), *G.input_shape[1:])
-    grid_latents = E.run(np.zeros((2,3,256,256)))
+    grid_latents = E.run(np.zeros((np.prod(grid_size),3,256,256)))
     print("ok1")
     grid_fakes = Gs.run(grid_latents, grid_labels, is_validation=True, minibatch_size=sched.minibatch_gpu)
     print("ok2")
