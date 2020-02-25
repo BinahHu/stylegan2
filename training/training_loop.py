@@ -147,11 +147,7 @@ def training_loop(
     with tf.device('/gpu:0'):
         if resume_pkl is None or resume_with_new_nets:
             print('Constructing networks...')
-            # E = tflib.Network('G', num_channels=training_set.shape[0], resolution=training_set.shape[1], label_size=training_set.label_size, **G_args)
-            print("here")
-            print(training_set.shape)
-            print(training_set.label_size)
-            exit()
+            #E = tflib.Network('E', num_channels=training_set.shape[0], resolution=training_set.shape[1], latent_szie=512, **E_args)
             G = tflib.Network('G', num_channels=training_set.shape[0], resolution=training_set.shape[1], label_size=training_set.label_size, **G_args)
             D = tflib.Network('D', num_channels=training_set.shape[0], resolution=training_set.shape[1], label_size=training_set.label_size, **D_args)
             Gs = G.clone('Gs')
@@ -162,7 +158,7 @@ def training_loop(
             else: G = rG; D = rD; Gs = rGs
 
     # Print layers and generate initial image snapshot.
-    G.print_layers(); D.print_layers()
+    #E.print_layers(); G.print_layers(); D.print_layers()
     sched = training_schedule(cur_nimg=total_kimg*1000, training_set=training_set, **sched_args)
     grid_latents = np.random.randn(np.prod(grid_size), *G.input_shape[1:])
     grid_fakes = Gs.run(grid_latents, grid_labels, is_validation=True, minibatch_size=sched.minibatch_gpu)
