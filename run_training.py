@@ -33,8 +33,9 @@ _valid_configs = [
 
 #----------------------------------------------------------------------------
 
-def run(dataset, data_dir, result_dir, config_id, num_gpus, total_kimg, gamma, mirror_augment, metrics):
+def run(content_dataset, style_dataset, dataset, data_dir, result_dir, config_id, num_gpus, total_kimg, gamma, mirror_augment, metrics):
     train     = EasyDict(run_func_name='training.training_loop.training_loop') # Options for training loop.
+    E         = EasyDict(func_name='training.encoder.VGG_Encoder')             # Options for encoder network
     G         = EasyDict(func_name='training.networks_stylegan2.G_main')       # Options for generator network.
     D         = EasyDict(func_name='training.networks_stylegan2.D_stylegan2')  # Options for discriminator network.
     G_opt     = EasyDict(beta1=0.0, beta2=0.99, epsilon=1e-8)                  # Options for generator optimizer.
@@ -161,6 +162,8 @@ def main():
     )
     parser.add_argument('--result-dir', help='Root directory for run results (default: %(default)s)', default='results', metavar='DIR')
     parser.add_argument('--data-dir', help='Dataset root directory', required=True)
+    parser.add_argument('--content-dataset', help='Content training dataset', required=True)
+    parser.add_argument('--style-dataset', help='Style training dataset', required=True)
     parser.add_argument('--dataset', help='Training dataset', required=True)
     parser.add_argument('--config', help='Training config (default: %(default)s)', default='config-f', required=True, dest='config_id', metavar='CONFIG')
     parser.add_argument('--num-gpus', help='Number of GPUs (default: %(default)s)', default=1, type=int, metavar='N')
