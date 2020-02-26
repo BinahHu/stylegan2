@@ -164,6 +164,7 @@ def training_loop(
     sched = training_schedule(cur_nimg=total_kimg*1000, training_set=training_set, **sched_args)
     #grid_latents = np.random.randn(np.prod(grid_size), *G.input_shape[1:])
     # TODO: Use True datasets
+
     style_latents, style_layers = E.encode(np.zeros((64,256,256,3), dtype='float32'), img_type='style')
     content_latents, content_layers = E.encode(np.zeros((64,256,256,3), dtype='float32'), img_type='content')
 
