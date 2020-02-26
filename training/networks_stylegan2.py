@@ -418,6 +418,7 @@ def G_synthesis_stylegan_revised(
 def G_synthesis_stylegan2(
     dlatents_in,                        # Input1: Disentangled latents (W) [minibatch, num_layers, dlatent_size].
     content_in,                         # Input2: Content features
+    content_size        = [512, 4, 4],  # Initial content shape
     dlatent_size        = 512,          # Disentangled latent (W) dimensionality.
     num_channels        = 3,            # Number of output color channels.
     resolution          = 1024,         # Output resolution.
@@ -444,6 +445,7 @@ def G_synthesis_stylegan2(
     # Primary inputs.
     dlatents_in.set_shape([None, num_layers, dlatent_size])
     dlatents_in = tf.cast(dlatents_in, dtype)
+    content_in.set_shape([None] + content_size)
 
     # Noise inputs.
     noise_inputs = []
@@ -487,13 +489,9 @@ def G_synthesis_stylegan2(
     y = None
     with tf.variable_scope('4x4'):
         with tf.variable_scope('Const'):
-            print("here")
-            x = tf.get_variable('const', shape=[1, nf(1), 4, 4], initializer=tf.initializers.random_normal())
-            print(x.shape)
-            x = tf.tile(tf.cast(x, dtype), [tf.shape(dlatents_in)[0], 1, 1, 1])
-            print(x.shape)
-            exit()
-            #x = tf.convert_to_tensor(content_in)
+            #x = tf.get_variable('const', shape=[1, nf(1), 4, 4], initializer=tf.initializers.random_normal())
+            #x = tf.tile(tf.cast(x, dtype), [tf.shape(dlatents_in)[0], 1, 1, 1])
+            x = tf.convert_to_tensor(content_in)
         with tf.variable_scope('Conv'):
             x = layer(x, layer_idx=0, fmaps=nf(1), kernel=3)
         if architecture == 'skip':
