@@ -51,8 +51,10 @@ def D_logistic(G, D, opt, training_set, minibatch_size, reals, labels):
 
 def D_logistic_r1(G, D, opt, training_set, minibatch_size, reals, labels, gamma=10.0):
     _ = opt, training_set
+    # TODO: use true loss
     latents = tf.random_normal([minibatch_size] + G.input_shapes[0][1:])
-    fake_images_out = G.get_output_for(latents, labels, is_training=True)
+    latent_content = tf.random_normal([minibatch_size] + G.input_shapes[2][1:])
+    fake_images_out = G.get_output_for(latents, labels, latent_content, is_training=True)
     real_scores_out = D.get_output_for(reals, labels, is_training=True)
     fake_scores_out = D.get_output_for(fake_images_out, labels, is_training=True)
     real_scores_out = autosummary('Loss/scores/real', real_scores_out)
