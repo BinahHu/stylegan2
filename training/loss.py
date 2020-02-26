@@ -149,7 +149,9 @@ def G_logistic_ns_pathreg(G, D, opt, training_set, minibatch_size, pl_minibatch_
     _ = opt
     latents = tf.random_normal([minibatch_size] + G.input_shapes[0][1:])
     labels = training_set.get_random_labels_tf(minibatch_size)
-    fake_images_out, fake_dlatents_out = G.get_output_for(latents, labels, is_training=True, return_dlatents=True)
+    # TODO: use true loss
+    latent_content = tf.random_normal([minibatch_size] + G.input_shapes[2][1:])
+    fake_images_out, fake_dlatents_out = G.get_output_for(latents, labels, latent_content, is_training=True, return_dlatents=True)
     fake_scores_out = D.get_output_for(fake_images_out, labels, is_training=True)
     loss = tf.nn.softplus(-fake_scores_out) # -log(sigmoid(fake_scores_out))
 
