@@ -18,6 +18,10 @@ ENCODER_LAYERS = (
     'conv4_1', 'relu4_1'
 )
 
+FEATURE_LAYERS = (
+    'relu1_1', 'relu2_1', 'relu3_1', 'relu4_1'
+)
+
 
 class Encoder(object):
 
@@ -46,7 +50,7 @@ class Encoder(object):
 
                     self.weight_vars.append((W, b))
 
-    def encode(self, image):
+    def encode(self, image, img_type = 'style'):
         # create the computational graph
         idx = 0
         layers = {}
@@ -66,23 +70,27 @@ class Encoder(object):
             elif kind == 'pool':
                 current = pool2d(current)
 
-            layers[layer] = current
+            if layer in FEATURE_LAYERS:
+                layers[layer] = current
 
-        assert(len(layers) == len(ENCODER_LAYERS))
+        assert(len(layers) == len(FEATURE_LAYERS))
 
-        enc = layers[ENCODER_LAYERS[-1]]
+        enc = layers[FEATURE_LAYERS[-1]]
 
+        if img_type == 'style':
+            latent_code = tf.reduce_mean(enc, axis=[1,2])
+        elif img_type == 'content':
+            latent_code = tf.nn.avg_pool(enc, ksize=[1,8,8,1], strides=[1,8,8,1])
+            latent_code = tf.transpose(latent_code, [0, 3, 1, 2])
+        else:
+            raise
 
-        latent_code = tf.reduce_mean(enc, axis=[1,2])
-        #latent_code = tf.get_default_session().run(latent_code)
-
-        #latent_code = latent_code.eval(session=tf.compat.v1.Session())
         init = (tf.global_variables_initializer(), tf.local_variables_initializer())
         with tf.Session() as sess:
             sess.run(init)
             latent_code = latent_code.eval()
 
-        return latent_code, enc, layers
+        return latent_code, layers
 
     def preprocess(self, image, mode='BGR'):
         if mode == 'BGR':

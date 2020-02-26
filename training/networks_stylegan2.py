@@ -151,6 +151,7 @@ def minibatch_stddev_layer(x, group_size=4, num_new_features=1):
 def G_main(
     latents_in,                                         # First input: Latent vectors (Z) [minibatch, latent_size].
     labels_in,                                          # Second input: Conditioning labels [minibatch, label_size].
+    content_in,                                         # Third input: Content features
     truncation_psi          = 0.5,                      # Style strength multiplier for the truncation trick. None = disable.
     truncation_cutoff       = None,                     # Number of layers for which to apply the truncation trick. None = disable.
     truncation_psi_val      = None,                     # Value for truncation_psi to use during validation.
@@ -235,7 +236,7 @@ def G_main(
     if 'lod' in components.synthesis.vars:
         deps.append(tf.assign(components.synthesis.vars['lod'], lod_in))
     with tf.control_dependencies(deps):
-        images_out = components.synthesis.get_output_for(dlatents, is_training=is_training, force_clean_graph=is_template_graph, **kwargs)
+        images_out = components.synthesis.get_output_for(dlatents, content_in, is_training=is_training, force_clean_graph=is_template_graph, **kwargs)
 
     # Return requested outputs.
     images_out = tf.identity(images_out, name='images_out')
@@ -415,7 +416,8 @@ def G_synthesis_stylegan_revised(
 # Used in configs E-F (Table 1).
 
 def G_synthesis_stylegan2(
-    dlatents_in,                        # Input: Disentangled latents (W) [minibatch, num_layers, dlatent_size].
+    dlatents_in,                        # Input1: Disentangled latents (W) [minibatch, num_layers, dlatent_size].
+    content_in,                         # Input2: Content features
     dlatent_size        = 512,          # Disentangled latent (W) dimensionality.
     num_channels        = 3,            # Number of output color channels.
     resolution          = 1024,         # Output resolution.
@@ -485,8 +487,9 @@ def G_synthesis_stylegan2(
     y = None
     with tf.variable_scope('4x4'):
         with tf.variable_scope('Const'):
-            x = tf.get_variable('const', shape=[1, nf(1), 4, 4], initializer=tf.initializers.random_normal())
-            x = tf.tile(tf.cast(x, dtype), [tf.shape(dlatents_in)[0], 1, 1, 1])
+            #x = tf.get_variable('const', shape=[1, nf(1), 4, 4], initializer=tf.initializers.random_normal())
+            #x = tf.tile(tf.cast(x, dtype), [tf.shape(dlatents_in)[0], 1, 1, 1])
+            x = tf.convert_to_tensor(content_in)
         with tf.variable_scope('Conv'):
             x = layer(x, layer_idx=0, fmaps=nf(1), kernel=3)
         if architecture == 'skip':
