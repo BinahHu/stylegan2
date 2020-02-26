@@ -80,7 +80,7 @@ class Encoder(object):
         if img_type == 'style':
             latent_code = tf.reduce_mean(enc, axis=[1,2])
         elif img_type == 'content':
-            latent_code = tf.nn.avg_pool(enc, ksize=[1,8,8,1], strides=[1,8,8,1], padding='same')
+            latent_code = tf.nn.avg_pool(enc, ksize=[1,8,8,1], strides=[1,8,8,1], padding='SAME')
             latent_code = tf.transpose(latent_code, [0, 3, 1, 2])
         else:
             raise
